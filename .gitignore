@@ -1,0 +1,19 @@
+/vendor/
+
+# log and cache
+cache/
+log/
+logs/
+*.log
+.php_cs*
+
+# win
+Thumbs.db
+
+# mac
+.DS_Store
+
+# other
+*.swp
+*.swo
+tags

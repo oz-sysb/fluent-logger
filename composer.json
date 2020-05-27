@@ -1,0 +1,24 @@
+{
+    "name": "oz-sysb/fluent-logger",
+    "description": "fluent-log ライブラリ",
+    "type": "library",
+    "require": {
+        "fluent/logger": "^1.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Shinichi Urabe",
+            "email": "s-urabe@oz-vision.co.jp"
+        }
+    ],
+    "minimum-stability": "stable",
+    "autoload": {
+        "psr-4": {"OzSysb\\FluentLogger\\": "src/"}
+    },
+    "config": {
+        "platform": {
+            "php": "5.3.3"
+        }
+    }
+}
