@@ -2,36 +2,66 @@
 namespace OzSysb\Logger;
 
 /**
- * Fluent Logger
+ * [API] Fluent Logger
  *
- * Fluent Logger client communicates to Fluentd with json formatted messages.
+ * composer ライブラリ fluent/logger を使い、社内で統一したフォーマットでログ出力するためのライブラリ
+ * @access public
+ * @author Shinichi Urabe <s-urabe@oz-vision.co.jp>
+ * @copyright Copyright © OZvision Inc. All rights reserved.
  */
 class OzLogger
 {
-    /* log level debug */
+    /**
+     * @const log level debug
+     */
     const DEBUG = 'debug';
 
-    /* log level info */
+    /**
+     * @const log level info
+     */
     const INFO = 'info';
 
-    /* log level warning */
+    /**
+     * @const log level warning
+     */
     const WARNING = 'warning';
 
-    /* log level error */
+    /**
+     * @const log level error
+     */
     const ERROR = 'error';
 
-    /* @var Fluent\Logger\FluentLogger */
+    /**
+     * @var Fluent\Logger\LoggerInterface
+     */
     private $client;
 
+    /**
+     * @var 同一トランザクションを区別するためのキー
+     * @static
+     */
     private static $key;
 
-    /* @var ozv では 固定で以下の socket を使用する */
+    /**
+     * @var ozv では 固定で以下の socket を使用する
+     */
     protected $socket = 'unix:///var/run/td-agent/td-agent.sock';
 
+    /**
+     * @var fluentd にログを残せなかった場合の、callback 定義
+     */
     protected $callback = array(__CLASS__, 'callback');
 
+    /**
+     * @var ログ保存で使用する namespace を定義
+     * @static
+     */
     protected static $defaultNamespace;
 
+    /**
+     * @var namespace 一覧
+     * @static
+     */
     protected static $namespaces = array(
         'app-server-side' => 'app.sp.api',
         'woodstock' => 'web.pc.front',
@@ -47,7 +77,34 @@ class OzLogger
         'aslan-batch' =>'batch.both.default',
     );
 
-
+    /**
+     * [API] 使用するアプリケーション名を定義
+     *
+     * OzSysb\Logger\OzLogger を初期化する前に呼び出す必要がある
+     * アプリケーション名は以下のいずれかから登録する
+     *
+     *  - app-server-side
+     *  - woodstock
+     *  - spitz
+     *  - apollo
+     *  - aslan
+     *  - maple
+     *  - mango
+     *  - ameba
+     *  - panda-web
+     *  - apple
+     *  - panda-batch
+     *  - aslan-batch
+     *
+     * @access public
+     * @param string $applicationName
+     *        アプリケーション名
+     * @throws \RuntimeExceptinon
+     *          定義されていないアプリケーション名の場合、例外を返す
+     * @return string $default
+     *        元々定義されていたアプリケーション名を返却
+     * @static
+     */
     public static function setApplication($applicationName)
     {
         if (!is_string($applicationName)) {
@@ -66,9 +123,18 @@ class OzLogger
     }
 
     /**
-     * create logger object.
-     * @param mixed $key (strin|null) use X_AMZN_TRACE_ID OR original unique key
-     * @param mixed $callback (strin|null) callback(\Exception, array log) , fluentd に書き込めなかった場合のログ保存先を callback で設定できる
+     * [API] コンストラクタ
+     *
+     * @access public
+     * @param Fluent\Logger\LoggerInterface
+     *        Logger を定義
+     * @param string|null $key
+     *        明示的にトランザクション用のキーを定義する場合、ここで指定する
+     * @param callable|null $callback
+     *        Logger にログが保存できなかった場合のコールバック関数をここで指定する 未指定の場合は error_log 関数を通してログが残される
+     *        callback(\Exception $exception, array $log)
+     * @throws \RuntimeException
+     *         初期化前にアプリケーションが指定されていない場合や $key が文字列でない場合に例外を投げる
      */
     public function __construct(Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null)
     {
@@ -89,26 +155,97 @@ class OzLogger
         $this->client = $logger;
     }
 
+    /**
+     * [API] debug 用ログメソッド
+     *
+     * @access public
+     * @param string @type
+     *        ログの種別を定義する
+     * @param mixed $message
+     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     * @param string $function
+     *        処理を行った関数・メソッドを指定
+     * @param string $class
+     *        処理を行ったクラスを指定
+     */
     public function debug($type, $message, $function = '', $class = '')
     {
         $this->post(self::DEBUG, $type, $message, $function, $class);
     }
 
+    /**
+     * [API] info 用ログメソッド
+     *
+     * @access public
+     * @param string @type
+     *        ログの種別を定義する
+     * @param mixed $message
+     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     * @param string $function
+     *        処理を行った関数・メソッドを指定
+     * @param string $class
+     *        処理を行ったクラスを指定
+     */
     public function info($type, $message, $function = '', $class = '')
     {
         $this->post(self::INFO, $type, $message, $function, $class);
     }
 
+    /**
+     * [API] warning 用ログメソッド
+     *
+     * @access public
+     * @param string @type
+     *        ログの種別を定義する
+     * @param mixed $message
+     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     * @param string $function
+     *        処理を行った関数・メソッドを指定
+     * @param string $class
+     *        処理を行ったクラスを指定
+     */
     public function warning($type, $message, $function = '', $class = '')
     {
         $this->post(self::WARNING, $type, $message, $function, $class);
     }
 
+    /**
+     * [API] error 用ログメソッド
+     *
+     * @access public
+     * @param string @type
+     *        ログの種別を定義する
+     * @param mixed $message
+     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     * @param string $function
+     *        処理を行った関数・メソッドを指定
+     * @param string $class
+     *        処理を行ったクラスを指定
+     */
     public function error($type, $message, $function = '', $class = '')
     {
         $this->post(self::ERROR, $type, $message, $function, $class);
     }
 
+    /**
+     * [API] post ログメソッド
+     *
+     * 直接このメソッドは実行せす、ログレベル名のメソッドを実行します
+     * Ozv の形式のログフォーマットに整形し、fluent/logger にログを post します
+     *
+     * @access protected
+     *
+     * @param string @level
+     *        予め定義済みの 4 種類のログレベルを利用
+     * @param string @type
+     *        ログの種別を定義する
+     * @param mixed $message
+     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     * @param string $function
+     *        処理を行った関数・メソッドを指定
+     * @param string $class
+     *        処理を行ったクラスを指定
+     */
     protected function post($level, $type, $message, $function, $class)
     {
         $log = array(
@@ -128,7 +265,19 @@ class OzLogger
         }
     }
 
-    protected function callback(\Exception $exception, array $log)
+    /**
+     * [API] fluent/logger にログを送出できないときのデフォルトの callback 先
+     *
+     * デフォルトでは error_log() にログを残します
+     *
+     * @access public
+     *
+     * @param \Exception @exception
+     *        fluent/logger から投げられた例外
+     * @param string @log
+     *        fluent/logger に送信しようとしていた ログ配列
+     */
+    public function callback(\Exception $exception, array $log)
     {
         error_log(json_encode(array_merge($log, array(
             'time' => date(DATE_RFC2822),
@@ -142,6 +291,18 @@ class OzLogger
         ))));
     }
 
+    /**
+     * [API] トランザクション内で一意に区別するキーを定義
+     *
+     * すでに self::$key が定義済みでない場合は、引数に指定された $key がユニークキーとして利用され、
+     * そうでない場合は、aws ELB でリクエストヘッダに付与される X-amzn-trace-id をキーとして利用
+     * aws ELB 経由でヘッダが付与されない場合や コマンドラインの場合は独自のキーを精製
+     *
+     * @access protected
+     *
+     * @param string|null @key
+     *      　自前で定義したキー
+     */
     protected function prepareUniqueKey($key = null)
     {
         if (null !== self::$key) {
@@ -161,6 +322,14 @@ class OzLogger
         self::$key = md5(date(DATE_RFC2822) . microtime() . getmypid() . var_export(isset($_SERVER['argv']) ? $_SERVER['argv'] : self::$defaultNamespace, true));
     }
 
+    /**
+     * [API] fluentd で利用する tag (ネームスペース) を生成
+     *
+     * @access protected
+     *
+     * @param string @level
+     *      　debug, info, warning, error のいずれか
+     */
     protected function generateNamespace($level)
     {
         return sprintf('%s.%s', self::$defaultNamespace, $level);
