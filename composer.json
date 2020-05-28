@@ -14,7 +14,7 @@
     ],
     "minimum-stability": "stable",
     "autoload": {
-        "psr-4": {"OzSysb\\FluentLogger\\": "src/"}
+        "psr-4": {"OzSysb\\Logger\\": "src/"}
     },
     "config": {
         "platform": {

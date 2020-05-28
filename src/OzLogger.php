@@ -1,5 +1,5 @@
 <?php
-namespace OzSysb\FluentLogger;
+namespace OzSysb\Logger;
 
 use Fluent\Logger\FluentLogger as FluentLogger;
 
@@ -8,7 +8,7 @@ use Fluent\Logger\FluentLogger as FluentLogger;
  *
  * Fluent Logger client communicates to Fluentd with json formatted messages.
  */
-class Logger
+class OzLogger
 {
     /* log level debug */
     const DEBUG = 'debug';
@@ -75,7 +75,7 @@ class Logger
     public function __construct($key = null, $callback = null)
     {
         if (is_null(self::$defaultNamespace)) {
-            throw new \RuntimeException('最初に OzSysb\FluentLogger\Logger::setApplication() を使い、アプリケーションを定義してください。');
+            throw new \RuntimeException('最初に OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。');
         }
 
         if (!is_null($key) && !is_string($key)) {
