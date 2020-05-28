@@ -121,7 +121,7 @@ class OzLogger
      * [API] コンストラクタ
      *
      * @access public
-     * @param Fluent\Logger\LoggerInterface
+     * @param \Fluent\Logger\LoggerInterface
      *        Logger を定義
      * @param string|null $key
      *        明示的にトランザクション用のキーを定義する場合、ここで指定する
@@ -131,10 +131,10 @@ class OzLogger
      * @throws \RuntimeException
      *         初期化前にアプリケーションが指定されていない場合や $key が文字列でない場合に例外を投げる
      */
-    public function __construct(Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null)
+    public function __construct(\Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null)
     {
         if (is_null(self::$defaultNamespace)) {
-            throw new \RuntimeException('最初に OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。');
+            throw new \RuntimeException('最初に \OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。');
         }
 
         if (!is_null($key) && !is_string($key)) {
