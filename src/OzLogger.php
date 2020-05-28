@@ -1,8 +1,6 @@
 <?php
 namespace OzSysb\Logger;
 
-use Fluent\Logger\FluentLogger as FluentLogger;
-
 /**
  * Fluent Logger
  *
@@ -72,7 +70,7 @@ class OzLogger
      * @param mixed $key (strin|null) use X_AMZN_TRACE_ID OR original unique key
      * @param mixed $callback (strin|null) callback(\Exception, array log) , fluentd に書き込めなかった場合のログ保存先を callback で設定できる
      */
-    public function __construct($key = null, $callback = null)
+    public function __construct(Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null)
     {
         if (is_null(self::$defaultNamespace)) {
             throw new \RuntimeException('最初に OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。');
@@ -88,7 +86,7 @@ class OzLogger
 
         $this->prepareUniqueKey($key);
 
-        $this->client = new FluentLogger($this->socket);
+        $this->client = $logger;
     }
 
     public function debug($type, $message, $function = '', $class = '')
@@ -122,13 +120,9 @@ class OzLogger
             'unique_key' => self::$key,
         );
 
-        if ($function) {
-            $log['function'] = $function;
-        }
-
         try {
             $this->logger->post($this->generateNamespace($level), $log);
-        } catch (Exception $exception) {
+        } catch (\Exception $exception) {
             // 例外を投げず、 callback 内で定義した処理で完了させる.
             call_user_func_array($this->callback, array($exception, $log));
         }
@@ -156,12 +150,12 @@ class OzLogger
 
         if (is_string($key)) {
             self::$key = $key;
-            return true;
+            return;
         }
 
         if (isset($_SERVER['HTTP_X_AMZN_TRACE_ID'])) {
             self::$key = $_SERVER['HTTP_X_AMZN_TRACE_ID'];
-            return true;
+            return;
         }
 
         self::$key = md5(date(DATE_RFC2822) . microtime() . getmypid() . var_export(isset($_SERVER['argv']) ? $_SERVER['argv'] : self::$defaultNamespace, true));
