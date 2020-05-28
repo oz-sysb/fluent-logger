@@ -43,11 +43,6 @@ class OzLogger
     private static $key;
 
     /**
-     * @var ozv では 固定で以下の socket を使用する
-     */
-    protected $socket = 'unix:///var/run/td-agent/td-agent.sock';
-
-    /**
      * @var fluentd にログを残せなかった場合の、callback 定義
      */
     protected $callback = array(__CLASS__, 'callback');
