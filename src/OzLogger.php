@@ -253,7 +253,7 @@ class OzLogger
         );
 
         try {
-            $this->logger->post($this->generateNamespace($level), $log);
+            $this->client->post($this->generateNamespace($level), $log);
         } catch (\Exception $exception) {
             // 例外を投げず、 callback 内で定義した処理で完了させる.
             call_user_func_array($this->callback, array($exception, $log));
