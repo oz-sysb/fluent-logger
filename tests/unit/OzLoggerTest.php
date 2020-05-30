@@ -52,6 +52,30 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
+     * @covers OzSysb\Logger\OzLogger::__construct
+     * @expectedException \RuntimeException
+     * @expectedExceptionMessage $key は文字列ではありません。: 0.1
+     **/
+    public function testConstructor2()
+    {
+        OzLogger::setApplication('woodstock');
+        $this->object = new OzLogger($this->mock, 0.1);
+    }
+
+    /**
+     * @covers OzSysb\Logger\OzLogger::__construct
+     **/
+    public function testConstructor3()
+    {
+        OzLogger::setApplication('woodstock');
+        $isCalled = false;
+        \MockLogger::forceException(true);
+        $this->object = new OzLogger($this->mock, 'dummy.key', function ($e, $l) use (&$isCalled) { $isCalled = true; });
+        $this->object->error('test.err', 'error message', __CLASS__, __FUNCTION__);
+        $this->assertTrue($isCalled);
+    }
+
+    /**
      * @covers OzSysb\Logger\OzLogger::setApplication
      * @dataProvider setApplicationDataProvider
      */
