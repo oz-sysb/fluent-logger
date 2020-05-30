@@ -128,10 +128,12 @@ class OzLogger
      * @param callable|null $callback
      *        Logger にログが保存できなかった場合のコールバック関数をここで指定する 未指定の場合は error_log 関数を通してログが残される
      *        callback(\Exception $exception, array $log)
+     * @param boolean $forceUpdateKey
+     *        強制的に ユニークキーを上書きするオプション
      * @throws \RuntimeException
      *         初期化前にアプリケーションが指定されていない場合や $key が文字列でない場合に例外を投げる
      */
-    public function __construct(\Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null)
+    public function __construct(\Fluent\Logger\LoggerInterface $logger, $key = null, $callback = null, $forceUpdateKey = false)
     {
         if (is_null(self::$defaultNamespace)) {
             throw new \RuntimeException('最初に \OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。');
@@ -145,7 +147,7 @@ class OzLogger
             $this->callback = $callback;
         }
 
-        $this->prepareUniqueKey($key);
+        $this->prepareUniqueKey($key, $forceUpdateKey);
 
         $this->client = $logger;
     }
@@ -297,10 +299,12 @@ class OzLogger
      *
      * @param string|null @key
      *      　自前で定義したキー
+     * @param boolean $force
+     *        強制的に ユニークキーを上書きするオプション
      */
-    protected function prepareUniqueKey($key = null)
+    protected function prepareUniqueKey($key = null, $force = false)
     {
-        if (null !== self::$key) {
+        if (null !== self::$key && !$force) {
             return;
         }
 
