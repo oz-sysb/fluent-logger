@@ -210,6 +210,37 @@ XSS;
     }
 
     /**
+     * @covers OzSysb\Logger\OzLogger::getUniqueKey
+     * @dataProvider getUniqueKeyDataProvider
+     */
+    public function testGetUniqueKey($key, $expectedKey, $assertionMethod)
+    {
+        static $oldKey = null;
+        $object = new OzLogger($this->mock, $key);
+        $object->info('test.callback', 'info message');
+        if ($oldKey) {
+            $this->assertEquals($object->getUniqueKey(), $oldKey);
+        }
+        $oldKey = $key;
+        $object = new OzLogger($this->mock, $key, null, true);
+        $object->debug('test.callback', 'debug message');
+        $object->error('test.callback', 'error message');
+        $object->info('test.callback', 'info2 message');
+
+        $this->$assertionMethod($expectedKey, $object->getUniqueKey());
+    }
+
+    public function getUniqueKeyDataProvider()
+    {
+        return array(
+            'null' => array(null, '/^[a-f0-9]{32}$/i', 'assertRegExp'),
+            'string' => array('hogehogeKey', 'hogehogeKey', 'assertEquals'),
+            'hash' => array(md5('hogehogeKey'), md5('hogehogeKey'), 'assertEquals'),
+            'x-amzn-trace-id' => array('Root=1-67891233-abcdef012345678912345678', 'Root=1-67891233-abcdef012345678912345678', 'assertEquals'),
+        );
+    }
+
+    /**
      * @covers OzSysb\Logger\OzLogger::callback
      */
     public function testCallback()

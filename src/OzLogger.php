@@ -251,7 +251,7 @@ class OzLogger
             'class' => $class,
             'function' => $function,
             'message' => json_encode($message),
-            'unique_key' => self::$key,
+            'unique_key' => $this->getUniqueKey(),
         );
 
         try {
@@ -319,6 +319,19 @@ class OzLogger
         }
 
         self::$key = md5(date(DATE_RFC2822) . microtime() . getmypid() . var_export(isset($_SERVER['argv']) ? $_SERVER['argv'] : self::$defaultNamespace, true));
+    }
+
+    /**
+     * [API] ユニークキーを取得
+     *
+     * @access public
+     *
+     * @return string $key
+     *        ユニークキーを返却
+     */
+    public function getUniqueKey()
+    {
+        return self::$key;
     }
 
     /**
