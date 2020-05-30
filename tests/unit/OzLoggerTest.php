@@ -13,6 +13,8 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
 
     protected $defaultCondition;
 
+    protected $defaultErrorLog;
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -33,11 +35,13 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
     protected function assertPreConditions()
     {
         $this->defaultCondition = \MockLogger::forceException();
+        $this->defaultErrorLog = ini_get('error_log');
     }
 
     protected function assertPostConditions()
     {
          \MockLogger::forceException($this->defaultCondition);
+        ini_set('error_log', $this->defaultErrorLog);
     }
 
     /**
