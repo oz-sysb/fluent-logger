@@ -54,8 +54,8 @@ $logger->info($type, 'Response from https://example.com/api/member response body
 
 
 // ... snip ...
-$type = 'db-error;
-$logger->error($type, 'DB Error : ERROR 1099 (HY000): Table 'super1' was locked with a READ lock and can't be updted', __FUNCTION__, __CLASS__);
+$type = 'db-error';
+$logger->error($type, "DB Error : ERROR 1099 (HY000): Table 'super1' was locked with a READ lock and can't be updted", __FUNCTION__, __CLASS__);
 ```
 
 ## Fluentd side
