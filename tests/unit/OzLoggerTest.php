@@ -41,8 +41,7 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @test for __construct
-     *
+     * @covers OzSysb\Logger\OzLogger::__construct
      * @expectedException \RuntimeException
      * @expectedExceptionMessage 最初に \OzSysb\Logger\OzLogger::setApplication() を使い、アプリケーションを定義してください。
      **/
