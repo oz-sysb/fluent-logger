@@ -106,9 +106,9 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         $namespace = $this->mock->getLastKey();
         $log = $this->mock->getLastLog();
 
-        $this->assertEquals($namespace, $expectedNamespace);
-        $this->assertEquals($log['message'], $expectedMessage);
-        $this->assertEquals($log['type'], 'test.debug');
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+        $this->assertEquals('test.debug', $log['type']);
     }
 
     public function debugDataProvider()
@@ -135,9 +135,9 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         $namespace = $this->mock->getLastKey();
         $log = $this->mock->getLastLog();
 
-        $this->assertEquals($namespace, $expectedNamespace);
-        $this->assertEquals($log['message'], $expectedMessage);
-        $this->assertEquals($log['type'], 'test.info');
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+        $this->assertEquals('test.info', $log['type']);
     }
 
     public function infoDataProvider()
@@ -167,9 +167,9 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($expectedNamespace, $namespace);
         $this->assertEquals($expectedMessage, $log['message']);
 
-        $this->assertEquals($namespace, $expectedNamespace);
-        $this->assertEquals($log['message'], $expectedMessage);
-        $this->assertEquals($log['type'], 'test.warning');
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+        $this->assertEquals('test.warning', $log['type']);
     }
 
     public function warningDataProvider()
@@ -201,9 +201,9 @@ FIZZBUZZ;
         $this->assertEquals($expectedNamespace, $namespace);
         $this->assertEquals($expectedMessage, $log['message']);
 
-        $this->assertEquals($namespace, $expectedNamespace);
-        $this->assertEquals($log['message'], $expectedMessage);
-        $this->assertEquals($log['type'], 'test.error');
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+        $this->assertEquals('test.error', $log['type']);
     }
 
     public function errorDataProvider()
@@ -231,7 +231,7 @@ XSS;
         $object = new OzLogger($this->mock, $key);
         $object->info('test.callback', 'info message');
         if ($oldKey) {
-            $this->assertEquals($object->getUniqueKey(), $oldKey);
+            $this->assertEquals($oldKey, $object->getUniqueKey());
         }
         $oldKey = $key;
         $object = new OzLogger($this->mock, $key, null, true);
@@ -266,8 +266,8 @@ XSS;
         });
         $object->info('test.callback', 'info message');
 
-        $this->assertEquals($result['exception']->getMessage(), 'forced error');
-        $this->assertEquals($result['log']['type'], 'test.callback');
-        $this->assertEquals($result['log']['message'], json_encode('info message'));
+        $this->assertEquals('forced error', $result['exception']->getMessage());
+        $this->assertEquals('test.callback', $result['log']['type']);
+        $this->assertEquals(json_encode('info message'), $result['log']['message']);
     }
 }
