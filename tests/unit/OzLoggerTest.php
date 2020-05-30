@@ -249,6 +249,137 @@ XSS;
     }
 
     /**
+     * @covers OzSysb\Logger\OzLogger::post
+     * @dataProvider postDataProvider
+     */
+    public function testPost($level, $message, $expectedNamespace, $expectedMessage)
+    {
+        OzLogger::setApplication('app-server-side');
+        $this->object = new OzLogger($this->mock);
+        $reflection = new \ReflectionClass($this->object);
+        $post = $reflection->getMethod('post');
+        $post->setAccessible(true);
+        $post->invokeArgs($this->object, array($level, 'test.post', $message, '', ''));
+
+        $namespace = $this->mock->getLastKey();
+        $log = $this->mock->getLastLog();
+
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+
+        $this->assertEquals($expectedNamespace, $namespace);
+        $this->assertEquals($expectedMessage, $log['message']);
+        $this->assertEquals('test.post', $log['type']);
+    }
+
+    /**
+     * @covers OzSysb\Logger\OzLogger::post
+     */
+    public function testPost2()
+    {
+        OzLogger::setApplication('app-server-side');
+        \MockLogger::forceException(true);
+        $isCalled = false;
+        $this->object = new OzLogger($this->mock, null, function ($e, $l) use (&$isCalled) { $isCalled = true; });
+        $reflection = new \ReflectionClass($this->object);
+        $post = $reflection->getMethod('post');
+        $post->setAccessible(true);
+        $post->invokeArgs($this->object, array(OzLogger::DEBUG, 'test.post', 'hoge', '', ''));
+
+        $this->assertTrue($isCalled);
+    }
+
+    public function postDataProvider()
+    {
+        $testObj = $this->mock;
+        $message = <<<'XSS'
+'';!--"<XSS>=&{()}``\"
+<script src=http://example.com/xss.js></script>
+XSS;
+        return array(
+            'number' => array(OzLogger::DEBUG, 10/3, 'app.sp.api.debug', json_encode(10/3)),
+            'array' => array(OzLogger::INFO, array(new \Exception('')), 'app.sp.api.info', json_encode(array(new \Exception('')))),
+            'object' => array(OzLogger::WARNING, $testObj, 'app.sp.api.warning', json_encode($testObj)),
+            'string' => array(OzLogger::ERROR, $message, 'app.sp.api.error', json_encode($message)),
+        );
+    }
+
+    /**
+     * @covers OzSysb\Logger\OzLogger::callback
+     */
+    public function testCallback()
+    {
+        \MockLogger::forceException(true);
+        $object = new OzLogger($this->mock, null, function ($exception, $log) use (&$result) {
+            $result = array(
+                'exception' => $exception,
+                'log' => $log,
+            );
+        });
+        $object->info('test.callback', 'info message');
+
+        $this->assertEquals('forced error', $result['exception']->getMessage());
+        $this->assertEquals('test.callback', $result['log']['type']);
+        $this->assertEquals(json_encode('info message'), $result['log']['message']);
+    }
+
+    /**
+     * @covers OzSysb\Logger\OzLogger::callback
+     */
+    public function testCallback2()
+    {
+        OzLogger::setApplication('app-server-side');
+        \MockLogger::forceException(true);
+
+        $callbackTest = tempnam(sys_get_temp_dir(), 'ozsysb-logger-callback');
+        ini_set('error_log', $callbackTest);
+
+        $this->object = new OzLogger($this->mock);
+        $reflection = new \ReflectionClass($this->object);
+        $callback = $reflection->getMethod('callback');
+        $callback->setAccessible(true);
+        $callback->invokeArgs($this->object, array(new \Exception('わんわん'), array('a' => 'b')));
+
+        $log = file_get_contents($callbackTest);
+
+        $this->assertRegExp('/"exception":/i', $log);
+        $this->assertRegExp('/"message":"/i', $log);
+    }
+
+    /**
+     * @covers OzSysb\Logger\OzLogger::prepareUniqueKey
+     */
+    public function testPrepareUniqueKey()
+    {
+        OzLogger::setApplication('app-server-side');
+        $this->object = new OzLogger($this->mock);
+
+        $reflection = new \ReflectionClass($this->object);
+        $prepareUniqueKey = $reflection->getMethod('prepareUniqueKey');
+        $prepareUniqueKey->setAccessible(true);
+
+        $nowKey = $this->object->getUniqueKey();
+
+        $prepareUniqueKey->invokeArgs($this->object, array(null, false));
+        // キーは変わらない
+        $this->assertEquals($nowKey, $this->object->getUniqueKey());
+
+        $prepareUniqueKey->invokeArgs($this->object, array('hoge', true));
+        // 強制的にキーが変わる -> 指定したもの
+        $this->assertEquals('hoge', $this->object->getUniqueKey());
+
+        $_SERVER['HTTP_X_AMZN_TRACE_ID'] = 'x-amzn';
+        $prepareUniqueKey->invokeArgs($this->object, array(null, true));
+        // 強制的にキーが変わる -> X-Amzn-Trace-ID
+        $this->assertEquals('x-amzn', $this->object->getUniqueKey());
+
+        unset($_SERVER['HTTP_X_AMZN_TRACE_ID']);
+        $prepareUniqueKey->invokeArgs($this->object, array(null, true));
+        // 強制的にキーが変わる -> original uniqueKey
+        $this->assertRegExp('/[0-9a-f]{16}/i', $this->object->getUniqueKey());
+    }
+
+    /**
      * @covers OzSysb\Logger\OzLogger::getUniqueKey
      * @dataProvider getUniqueKeyDataProvider
      */
@@ -280,21 +411,18 @@ XSS;
     }
 
     /**
-     * @covers OzSysb\Logger\OzLogger::callback
+     * @covers OzSysb\Logger\OzLogger::generateNamespace
      */
-    public function testCallback()
+    public function testGenerateNamespace()
     {
-        \MockLogger::forceException(true);
-        $object = new OzLogger($this->mock, null, function ($exception, $log) use (&$result) {
-            $result = array(
-                'exception' => $exception,
-                'log' => $log,
-            );
-        });
-        $object->info('test.callback', 'info message');
+        OzLogger::setApplication('app-server-side');
+        $this->object = new OzLogger($this->mock);
 
-        $this->assertEquals('forced error', $result['exception']->getMessage());
-        $this->assertEquals('test.callback', $result['log']['type']);
-        $this->assertEquals(json_encode('info message'), $result['log']['message']);
+        $reflection = new \ReflectionClass($this->object);
+        $generateNamespace = $reflection->getMethod('generateNamespace');
+        $generateNamespace->setAccessible(true);
+        $result = $generateNamespace->invokeArgs($this->object, array(OzLogger::INFO));
+
+        $this->assertEquals('app.sp.api.info', $result);
     }
 }
