@@ -267,14 +267,14 @@ class OzLogger
      *
      * デフォルトでは error_log() にログを残します
      *
-     * @access public
+     * @access private
      *
      * @param \Exception @exception
      *        fluent/logger から投げられた例外
      * @param string @log
      *        fluent/logger に送信しようとしていた ログ配列
      */
-    public function callback(\Exception $exception, array $log)
+    private function callback(\Exception $exception, array $log)
     {
         error_log(json_encode(array_merge($log, array(
             'time' => date(DATE_RFC2822),
