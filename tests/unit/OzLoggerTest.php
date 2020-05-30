@@ -11,6 +11,8 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
      */
     protected $mock;
 
+    protected $defaultCondition;
+
     /**
      * Sets up the fixture, for example, opens a network connection.
      * This method is called before a test is executed.
@@ -26,6 +28,16 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
      */
     protected function tearDown()
     {
+    }
+
+    protected function assertPreConditions()
+    {
+        $this->defaultCondition = \MockLogger::forceException();
+    }
+
+    protected function assertPostConditions()
+    {
+         \MockLogger::forceException($this->defaultCondition);
     }
 
     /**
@@ -245,7 +257,7 @@ XSS;
      */
     public function testCallback()
     {
-        $defaultCondition = \MockLogger::forceException(true);
+        \MockLogger::forceException(true);
         $object = new OzLogger($this->mock, null, function ($exception, $log) use (&$result) {
             $result = array(
                 'exception' => $exception,
@@ -257,7 +269,5 @@ XSS;
         $this->assertEquals($result['exception']->getMessage(), 'forced error');
         $this->assertEquals($result['log']['type'], 'test.callback');
         $this->assertEquals($result['log']['message'], json_encode('info message'));
-
-        \MockLogger::forceException($defaultCondition);
     }
 }
