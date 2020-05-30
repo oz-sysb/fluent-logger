@@ -5,9 +5,8 @@
  */
 class MockLogger implements Fluent\Logger\LoggerInterface
 {
-    private
-        $key,
-        $log;
+    private $key;
+    private $log;
 
 
     private static $forceException = false;
