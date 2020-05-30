@@ -1,4 +1,5 @@
 /vendor/
+/builds/
 
 # log and cache
 cache/
