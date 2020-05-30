@@ -40,7 +40,7 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
 
     protected function assertPostConditions()
     {
-         \MockLogger::forceException($this->defaultCondition);
+        \MockLogger::forceException($this->defaultCondition);
         ini_set('error_log', $this->defaultErrorLog);
     }
 
@@ -73,7 +73,9 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         OzLogger::setApplication('woodstock');
         $isCalled = false;
         \MockLogger::forceException(true);
-        $this->object = new OzLogger($this->mock, 'dummy.key', function ($e, $l) use (&$isCalled) { $isCalled = true; });
+        $this->object = new OzLogger($this->mock, 'dummy.key', function ($e, $l) use (&$isCalled) {
+            $isCalled = true;
+        });
         $this->object->error('test.err', 'error message', __CLASS__, __FUNCTION__);
         $this->assertTrue($isCalled);
     }
@@ -280,7 +282,9 @@ XSS;
         OzLogger::setApplication('app-server-side');
         \MockLogger::forceException(true);
         $isCalled = false;
-        $this->object = new OzLogger($this->mock, null, function ($e, $l) use (&$isCalled) { $isCalled = true; });
+        $this->object = new OzLogger($this->mock, null, function ($e, $l) use (&$isCalled) {
+            $isCalled = true;
+        });
         $reflection = new \ReflectionClass($this->object);
         $post = $reflection->getMethod('post');
         $post->setAccessible(true);
