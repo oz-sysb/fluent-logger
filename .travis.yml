@@ -16,3 +16,6 @@ matrix:
   include:
     - php: 5.3
       dist: precise
+
+after_success:
+  - vendor/bin/coveralls -v
