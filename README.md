@@ -14,17 +14,11 @@
 
 Library is available on [Packagist](https://packagist.org/packages/oz-sysb/fluent-logger).
 
-It's recommended that you use [Composer](https://getcomposer.org/) to install Slim.
+It's recommended that you use [Composer](https://getcomposer.org/) to install oz-sysb/fluent-logger.
 
 ```bash
-$ composer require oz-sysb/fluent-logger:^1.0
+$ composer require oz-sysb/fluent-logger
 ```
-
-# Backward Compatibility Changes
-
-As of v1, all loggers but `FluentLogger` are removed.
-
-[Monolog](https://github.com/Seldaek/monolog) is recommended in such use cases.
 
 # Usage
 
@@ -46,15 +40,16 @@ $logger = new OzLogger(new Client('unix:///var/run/td-agent/td-agent.sock'));
 // ... snip ...
 
 // Describe every required part
-$type = 'api-client';
 
-// ... snip ...
+$type = 'api-client';
 $logger->info($type, 'Post to https://example.com/api/member, and post params id=100&key=value', __FUNCTION__, __CLASS__);
 $logger->info($type, 'Response from https://example.com/api/member response body is {"status": "successed!"}', __FUNCTION__, __CLASS__);
 
 
 // ... snip ...
-$type = 'db-error';
+$type = 'db';
+$logger->info($type, "DB Insert : inserts member_id=100 to super1 table", __FUNCTION__, __CLASS__);
+$type = 'db';
 $logger->error($type, "DB Error : ERROR 1099 (HY000): Table 'super1' was locked with a READ lock and can't be updted", __FUNCTION__, __CLASS__);
 ```
 
