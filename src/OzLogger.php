@@ -70,6 +70,7 @@ class OzLogger
         'apple' =>'web.pointback.api',
         'panda-batch' =>'batch.pointback.default',
         'aslan-batch' =>'batch.both.default',
+        'hapiliate' =>'web.asp.front',
     );
 
     /**
