@@ -161,7 +161,7 @@ class OzLogger
      * @param string @type
      *        ログの種別を定義する
      * @param mixed $message
-     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     *        文字列、配列、オブジェクト など serialize() した文字列を保存するため、値の形式は問わない
      * @param string $function
      *        処理を行った関数・メソッドを指定
      * @param string $class
@@ -179,7 +179,7 @@ class OzLogger
      * @param string @type
      *        ログの種別を定義する
      * @param mixed $message
-     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     *        文字列、配列、オブジェクト など serialize() した文字列を保存するため、値の形式は問わない
      * @param string $function
      *        処理を行った関数・メソッドを指定
      * @param string $class
@@ -197,7 +197,7 @@ class OzLogger
      * @param string @type
      *        ログの種別を定義する
      * @param mixed $message
-     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     *        文字列、配列、オブジェクト など serialize() した文字列を保存するため、値の形式は問わない
      * @param string $function
      *        処理を行った関数・メソッドを指定
      * @param string $class
@@ -215,7 +215,7 @@ class OzLogger
      * @param string @type
      *        ログの種別を定義する
      * @param mixed $message
-     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     *        文字列、配列、オブジェクト など serialize() した文字列を保存するため、値の形式は問わない
      * @param string $function
      *        処理を行った関数・メソッドを指定
      * @param string $class
@@ -239,7 +239,7 @@ class OzLogger
      * @param string @type
      *        ログの種別を定義する
      * @param mixed $message
-     *        文字列、配列、オブジェクト など json_encode() した文字列を保存するため、値の形式は問わない
+     *        文字列、配列、オブジェクト など serialize() した文字列を保存するため、値の形式は問わない
      * @param string $function
      *        処理を行った関数・メソッドを指定
      * @param string $class
@@ -252,7 +252,7 @@ class OzLogger
             'pid' => getmypid(),
             'class' => $class,
             'function' => $function,
-            'message' => json_encode($message),
+            'message' => serialize($message),
             'unique_key' => $this->getUniqueKey(),
         );
 
@@ -278,7 +278,7 @@ class OzLogger
      */
     private function callback(\Exception $exception, array $log)
     {
-        error_log(json_encode(array_merge($log, array(
+        error_log(serialize(array_merge($log, array(
             'time' => date(DATE_RFC2822),
             'exception' => array(
                 'message' => $exception->getMessage(),
