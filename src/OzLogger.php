@@ -7,7 +7,7 @@ namespace OzSysb\Logger;
  * composer ライブラリ fluent/logger を使い、社内で統一したフォーマットでログ出力するためのライブラリ
  * @access public
  * @author Shinichi Urabe <s-urabe@oz-vision.co.jp>
- * @copyright Copyright © OZvision Inc. All rights reserved.
+ * @copyright Copyright (C) OZVISION Inc. All rights reserved.
  */
 class OzLogger
 {
