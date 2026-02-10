@@ -145,10 +145,10 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         $testObj = new \DateTime();
         $message = 'こんにちはこれはテスト';
         return array(
-            'number' => array(1, 'web.pc.front.debug', json_encode(1)),
-            'array' => array(array('woodstock'), 'web.pc.front.debug', json_encode(array('woodstock'))),
-            'object' => array($testObj, 'web.pc.front.debug', json_encode($testObj)),
-            'string' => array($message, 'web.pc.front.debug', json_encode($message)),
+            'number' => array(1, 'web.pc.front.debug', serialize(1)),
+            'array' => array(array('woodstock'), 'web.pc.front.debug', serialize(array('woodstock'))),
+            'object' => array($testObj, 'web.pc.front.debug', serialize($testObj)),
+            'string' => array($message, 'web.pc.front.debug', serialize($message)),
         );
     }
 
@@ -174,10 +174,10 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
         $testObj = new \Exception('message');
         $message = 'ああ華族様だよ　と私は嘘を吐くのであった';
         return array(
-            'number' => array(-0.00001, 'web.pointback.front.info', json_encode(-0.00001)),
-            'array' => array(array('         '), 'web.pointback.front.info', json_encode(array('         '))),
-            'object' => array($testObj, 'web.pointback.front.info', json_encode($testObj)),
-            'string' => array($message, 'web.pointback.front.info', json_encode($message)),
+            'number' => array(-0.00001, 'web.pointback.front.info', serialize(-0.00001)),
+            'array' => array(array('         '), 'web.pointback.front.info', serialize(array('         '))),
+            'object' => array($testObj, 'web.pointback.front.info', serialize($testObj)),
+            'string' => array($message, 'web.pointback.front.info', serialize($message)),
         );
     }
 
@@ -208,10 +208,10 @@ class OzLoggerTest extends \PHPUnit_Framework_TestCase
 1.upto(100){|i|puts i%15==0?'fizzbuzz':i%5==0?'buzz':i%3==0?'fizz':i}
 FIZZBUZZ;
         return array(
-            'number' => array(0x1, 'batch.both.default.warning', json_encode(0x1)),
-            'array' => array(array(json_encode(1), json_encode(null)), 'batch.both.default.warning', json_encode(array(json_encode(1), json_encode(null)))),
-            'object' => array($testObj, 'batch.both.default.warning', json_encode($testObj)),
-            'string' => array($message, 'batch.both.default.warning', json_encode($message)),
+            'number' => array(0x1, 'batch.both.default.warning', serialize(0x1)),
+            'array' => array(array(json_encode(1), json_encode(null)), 'batch.both.default.warning', serialize(array(json_encode(1), json_encode(null)))),
+            'object' => array($testObj, 'batch.both.default.warning', serialize($testObj)),
+            'string' => array($message, 'batch.both.default.warning', serialize($message)),
         );
     }
 
@@ -243,10 +243,10 @@ FIZZBUZZ;
 <script src=http://example.com/xss.js></script>
 XSS;
         return array(
-            'number' => array(10/3, 'app.sp.api.error', json_encode(10/3)),
-            'array' => array(array(new \Exception('')), 'app.sp.api.error', json_encode(array(new \Exception('')))),
-            'object' => array($testObj, 'app.sp.api.error', json_encode($testObj)),
-            'string' => array($message, 'app.sp.api.error', json_encode($message)),
+            'number' => array(10/3, 'app.sp.api.error', serialize(10/3)),
+            'array' => array(array(new \Exception('')), 'app.sp.api.error', serialize(array(new \Exception('')))),
+            'object' => array($testObj, 'app.sp.api.error', serialize($testObj)),
+            'string' => array($message, 'app.sp.api.error', serialize($message)),
         );
     }
 
@@ -301,10 +301,10 @@ XSS;
 <script src=http://example.com/xss.js></script>
 XSS;
         return array(
-            'number' => array(OzLogger::DEBUG, 10/3, 'app.sp.api.debug', json_encode(10/3)),
-            'array' => array(OzLogger::INFO, array(new \Exception('')), 'app.sp.api.info', json_encode(array(new \Exception('')))),
-            'object' => array(OzLogger::WARNING, $testObj, 'app.sp.api.warning', json_encode($testObj)),
-            'string' => array(OzLogger::ERROR, $message, 'app.sp.api.error', json_encode($message)),
+            'number' => array(OzLogger::DEBUG, 10/3, 'app.sp.api.debug', serialize(10/3)),
+            'array' => array(OzLogger::INFO, array(new \Exception('')), 'app.sp.api.info', serialize(array(new \Exception('')))),
+            'object' => array(OzLogger::WARNING, $testObj, 'app.sp.api.warning', serialize($testObj)),
+            'string' => array(OzLogger::ERROR, $message, 'app.sp.api.error', serialize($message)),
         );
     }
 
@@ -324,7 +324,7 @@ XSS;
 
         $this->assertEquals('forced error', $result['exception']->getMessage());
         $this->assertEquals('test.callback', $result['log']['type']);
-        $this->assertEquals(json_encode('info message'), $result['log']['message']);
+        $this->assertEquals(serialize('info message'), $result['log']['message']);
     }
 
     /**
@@ -346,8 +346,8 @@ XSS;
 
         $log = file_get_contents($callbackTest);
 
-        $this->assertRegExp('/"exception":/i', $log);
-        $this->assertRegExp('/"message":"/i', $log);
+        $this->assertRegExp('/"exception";/i', $log);
+        $this->assertRegExp('/"message";/i', $log);
     }
 
     /**
